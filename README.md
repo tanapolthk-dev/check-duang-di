@@ -86,7 +86,7 @@ npm run test:e2e
 4. ไปที่แท็บ **Actions** รอ workflow "Test and deploy to GitHub Pages" เป็นสีเขียว (ถ้าไม่เริ่มเอง กด Run workflow)
 5. URL จะเป็น `https://tanapolthk-dev.github.io/check-duang-di/` — เปิดตรวจว่าเว็บทำงาน
 6. หน้า "เปิดบนมือถือ" จะแสดงปุ่มคัดลอกลิงก์และ QR ให้อัตโนมัติบนโดเมน `*.github.io` ถ้าใช้โดเมนอื่นให้ใส่ URL ใน `src/config.js` → `publicUrl` แล้ว push ใหม่
-7. ใส่ URL เต็มของภาพแชร์ใน `index.html` ที่ `og:image` (เช่น `https://tanapolthk-dev.github.io/check-duang-di/assets/img/og-image.png`) เพราะแพลตฟอร์มโซเชียลต้องการ URL เต็ม
+7. `index.html` ตั้ง `og:url` และ `og:image` เป็น URL เต็มของ `https://tanapolthk-dev.github.io/check-duang-di/` ไว้แล้ว ถ้าเปลี่ยนชื่อ repo หรือโดเมน ต้องแก้สองค่านี้ด้วย
 8. สแกน QR จากหน้าจอด้วยมือถือ iOS และ Android อย่างน้อยอย่างละ 1 เครื่อง และยืนยันว่าเปิดหน้าแรกได้ จึงค่อยใช้ QR ในสื่อ
 
 เงื่อนไข GitHub Pages ที่ตรวจเมื่อ 8 ต.ค. 2569: เว็บที่เผยแพร่สูงสุด 1 GB, แบนด์วิดท์ soft limit 100 GB/เดือน, ไม่ได้มีไว้สำหรับไซต์เชิงพาณิชย์หรือ SaaS เป็นหลัก — เงื่อนไขอาจเปลี่ยน ตรวจที่ https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits ก่อนใช้งานจริง และตรวจซ้ำก่อนเริ่มมีสปอนเซอร์
