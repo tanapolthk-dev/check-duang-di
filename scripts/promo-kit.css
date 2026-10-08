@@ -58,6 +58,11 @@ details.script summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
 table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 520px; }
 th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 tbody th { white-space: nowrap; font-weight: 600; }
+.qgroup { margin-top: 22px; }
+.qgroup h3 { font-size: 1.1rem; }
+.quotes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.quotes li { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.quotes li span { font-size: 1.02rem; font-weight: 500; min-width: 0; }
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin-top: 16px; align-items: start; }
 .gallery figure { margin: 0; }
 .gallery img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }

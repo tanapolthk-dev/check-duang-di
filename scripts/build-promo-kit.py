@@ -13,7 +13,7 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(ROOT, 'marketing'))
-from promo_content import PLATFORMS, VIDEO_SCRIPT  # noqa: E402
+from promo_content import PLATFORMS, QUOTES, VIDEO_SCRIPT  # noqa: E402
 
 LINKS = {l['id']: l for l in json.load(open(os.path.join(ROOT, 'marketing', 'links.json'), encoding='utf-8'))}
 MAIN = LINKS['main']['url']
@@ -57,6 +57,10 @@ def build_markdown():
                     '| ช่วงเวลา | ภาพ/ข้อความบนจอ | เสียงพูด |', '|---|---|---|']
             out += [f'| {t} | {v} | {s} |' for t, v, s in VIDEO_SCRIPT]
             out.append('')
+    out += ['## Quote สำหรับโปรโมต', '',
+            'ใช้เป็นหัวโพสต์ การ์ดคำคม ข้อความบนภาพ หรือปิดท้ายคลิป ใส่ #เช็คดวงดิ๊ และถ้าทำเป็นภาพ ให้มีข้อความเล็ก "เนื้อหาเพื่อความบันเทิง"', '']
+    for cat, use, items in QUOTES:
+        out += [f'### {cat}', f'_{use}_', ''] + [f'- {q}' for q in items] + ['']
     out += ['## ข้อควรระวังทุกแพลตฟอร์ม',
             '- ใช้วันเกิดสมมติในคลิปและภาพ และเขียนกำกับว่า "ข้อมูลตัวอย่าง"',
             '- ชวนแชร์ชื่อช่วง (ลมส่ง/เก็บแรง/ชะลอ) ไม่ชวนให้คอมเมนต์วันเกิด เวลาเกิด หรือจังหวัดที่เกิด',
@@ -133,6 +137,14 @@ def build_html():
         src, w, h = thumb(name)
         gallery += f'<figure><img src="{src}" width="{w}" height="{h}" alt="ภาพโปรโมต{label}" loading="lazy"><figcaption>{label}<br><span>{name}</span></figcaption></figure>'
 
+    quote_html = ''
+    for cat, use, items in QUOTES:
+        lis = ''
+        for q in items:
+            n += 1
+            lis += f'<li><span id="t{n}">{html.escape(q)}</span><button type="button" class="copy" data-target="t{n}">คัดลอก</button></li>'
+        quote_html += f'<div class="qgroup"><h3>{html.escape(cat)}</h3><p class="where">{html.escape(use)}</p><ul class="quotes">{lis}</ul></div>'
+
     n += 1
     page = f'''<title>ชุดโปรโมตเช็คดวงดิ๊</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -150,9 +162,14 @@ def build_html():
         <div class="linkrow"><code id="t{n}">{html.escape(MAIN)}</code><button type="button" class="copy primary" data-target="t{n}">คัดลอกลิงก์</button></div></div>
       <figure class="qr">{inline_svg(LINKS["main"]["qr_svg"])}<figcaption>QR ลิงก์หลัก</figcaption></figure>
     </div>
-    <nav class="tabs" aria-label="แพลตฟอร์ม">{"".join(nav)}<a href="#graphics">ภาพโพสต์</a></nav>
+    <nav class="tabs" aria-label="แพลตฟอร์ม">{"".join(nav)}<a href="#quotes">Quote</a><a href="#graphics">ภาพโพสต์</a></nav>
   </header>
   {"".join(sections)}
+  <section class="platform" id="quotes" aria-labelledby="h-quotes">
+    <h2 id="h-quotes">Quote สำหรับโปรโมต</h2>
+    <p class="where">ใช้เป็นหัวโพสต์ การ์ดคำคม ข้อความบนภาพ หรือปิดท้ายคลิป ใส่ #เช็คดวงดิ๊ และถ้าทำเป็นภาพ ให้มีข้อความเล็ก "เนื้อหาเพื่อความบันเทิง"</p>
+    {quote_html}
+  </section>
   <section class="platform" id="graphics" aria-labelledby="h-graphics">
     <h2 id="h-graphics">ภาพโพสต์</h2>
     <p class="where">ภาพตัวอย่างย่อขนาด ไฟล์ขนาดเต็มและ QR แบบ PNG/SVG ส่งให้ในแชต และอยู่ใน repository โฟลเดอร์ marketing/</p>
