@@ -1,0 +1,58 @@
+[
+  {
+    "id": "main",
+    "name": "ลิงก์หลัก (ทั่วไป/สิ่งพิมพ์)",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/",
+    "qr_svg": "marketing/qr/main.svg",
+    "qr_png": "marketing/qr/main.png"
+  },
+  {
+    "id": "facebook",
+    "name": "Facebook",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=facebook&utm_medium=social",
+    "qr_svg": "marketing/qr/facebook.svg",
+    "qr_png": "marketing/qr/facebook.png"
+  },
+  {
+    "id": "instagram",
+    "name": "Instagram",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=instagram&utm_medium=social",
+    "qr_svg": "marketing/qr/instagram.svg",
+    "qr_png": "marketing/qr/instagram.png"
+  },
+  {
+    "id": "tiktok",
+    "name": "TikTok",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=tiktok&utm_medium=social",
+    "qr_svg": "marketing/qr/tiktok.svg",
+    "qr_png": "marketing/qr/tiktok.png"
+  },
+  {
+    "id": "youtube",
+    "name": "YouTube Shorts",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=youtube&utm_medium=social",
+    "qr_svg": "marketing/qr/youtube.svg",
+    "qr_png": "marketing/qr/youtube.png"
+  },
+  {
+    "id": "x",
+    "name": "X",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=x&utm_medium=social",
+    "qr_svg": "marketing/qr/x.svg",
+    "qr_png": "marketing/qr/x.png"
+  },
+  {
+    "id": "line",
+    "name": "LINE",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=line&utm_medium=social",
+    "qr_svg": "marketing/qr/line.svg",
+    "qr_png": "marketing/qr/line.png"
+  },
+  {
+    "id": "threads",
+    "name": "Threads",
+    "url": "https://tanapolthk-dev.github.io/check-duang-di/?utm_source=threads&utm_medium=social",
+    "qr_svg": "marketing/qr/threads.svg",
+    "qr_png": "marketing/qr/threads.png"
+  }
+]

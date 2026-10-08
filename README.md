@@ -49,6 +49,7 @@ check-duang-di/
 │  ├─ check-secrets.mjs       สแกน secret/ข้อมูลส่วนบุคคลก่อน commit
 │  └─ build-single-file.mjs   สร้าง dist/preview.html ไฟล์เดียว (สำหรับพรีวิว)
 ├─ docs/                      เอกสารทั้งหมด (ดูด้านล่าง)
+├─ marketing/                 ลิงก์แยกแพลตฟอร์ม (links.json), QR (qr/), ภาพโพสต์ (graphics/), เนื้อหาโปรโมต
 ├─ .github/workflows/pages.yml  ทดสอบ + deploy GitHub Pages
 ├─ .gitignore  .env.example  THIRD_PARTY_NOTICES.md  package.json
 ```
@@ -98,6 +99,14 @@ npm run test:e2e
 ### ทางเลือก: โฮสต์ static อื่น
 ใช้ได้ทุกบริการที่เสิร์ฟไฟล์ static: อัปโหลด `index.html`, `assets/`, `src/` ไม่ต้องตั้งค่า rewrite เพราะใช้ hash routing ตรวจเงื่อนไขแผนฟรี ณ วันที่ใช้งาน แล้วใส่ URL ใน `publicUrl`
 
+## สร้างชุดโปรโมตใหม่
+```bash
+node scripts/make-promo-links.mjs     # ลิงก์ + QR (SVG) แยกแพลตฟอร์ม
+python3 scripts/render-promo.py       # QR (PNG) + ภาพโพสต์ และตรวจถอดรหัส QR ทุกไฟล์
+python3 scripts/build-promo-kit.py    # docs/07-social-promo-kit.md + dist/promo-kit.html
+```
+แก้ข้อความโพสต์ได้ที่ `marketing/promo_content.py`
+
 ## ความเป็นส่วนตัวและข้อมูล (สรุป)
 - ข้อมูลเกิดอยู่ในหน่วยความจำของแท็บ เก็บใน localStorage เฉพาะเมื่อผู้ใช้เลือก
 - GitHub เก็บเฉพาะ source code และเอกสาร **ห้าม commit ข้อมูลผู้ใช้หรือ secret** — ตรวจด้วย `npm run check:secrets` ทุกครั้งก่อน commit
@@ -113,6 +122,7 @@ npm run test:e2e
 | `docs/04-whitepaper.md` | Whitepaper |
 | `docs/05-test-plan-and-report.md` | แผนทดสอบและผลทดสอบจริง |
 | `docs/06-content-plan-30-days.md` | แผนคอนเทนต์ 30 วันและแนวทางสปอนเซอร์ |
+| `docs/07-social-promo-kit.md` | ชุดโปรโมต 7 แพลตฟอร์ม: ลิงก์ QR ข้อความพร้อมโพสต์ สคริปต์วิดีโอ |
 
 ## ใบอนุญาต
 - ฟอนต์ IBM Plex Sans Thai: SIL Open Font License 1.1
