@@ -6,6 +6,8 @@ import {
 import { validateBirth } from '../../src/engine/validate.js';
 import { buildReading, buildLifeGraph, phaseOf, GRAPH_MAX_AGE } from '../../src/engine/reading.js';
 import { hashString } from '../../src/engine/random.js';
+import { PROVINCES, PROVINCE_REGIONS } from '../../src/engine/provinces.js';
+import { LEGACY_REGION_TO_PROVINCE, placeById } from '../../src/engine/calendar.js';
 
 const TODAY = { ce: 2026, month: 10, day: 8 };
 
@@ -32,20 +34,20 @@ test('เวลาพระอาทิตย์ขึ้นกรุงเท�
 
 test('เกิดก่อนพระอาทิตย์ขึ้นนับเป็นวันก่อนหน้า และพุธกลางคืน', () => {
   // 8 ต.ค. 2026 เป็นวันพฤหัสบดี เวลา 03:00 → นับเป็นวันพุธกลางคืน
-  const d = thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: 180, regionId: 'bkk' });
+  const d = thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: 180, placeId: 'bangkok' });
   assert.equal(d.id, 'wedn');
   assert.equal(d.shifted, true);
   // วันพุธ 19:00 → พุธกลางคืน
-  const w = thaiAstroDay({ ce: 2026, month: 10, day: 7, minutes: 19 * 60, regionId: 'bkk' });
+  const w = thaiAstroDay({ ce: 2026, month: 10, day: 7, minutes: 19 * 60, placeId: 'bangkok' });
   assert.equal(w.id, 'wedn');
   // วันพุธ 10:00 → พุธกลางวัน
-  assert.equal(thaiAstroDay({ ce: 2026, month: 10, day: 7, minutes: 600, regionId: 'bkk' }).id, 'wed');
+  assert.equal(thaiAstroDay({ ce: 2026, month: 10, day: 7, minutes: 600, placeId: 'bangkok' }).id, 'wed');
   // ไม่ทราบเวลา → ใช้วันตามปฏิทิน
-  const u = thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: null, regionId: '' });
+  const u = thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: null, placeId: '' });
   assert.equal(u.id, 'thu');
   assert.equal(u.shifted, false);
   // ต่างประเทศ → ไม่ปรับ
-  assert.equal(thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: 180, regionId: 'abroad' }).id, 'thu');
+  assert.equal(thaiAstroDay({ ce: 2026, month: 10, day: 8, minutes: 180, placeId: 'abroad' }).id, 'thu');
 });
 
 test('ปีนักษัตรและราศีสากล', () => {
@@ -68,7 +70,7 @@ test('parseTime และ ageOn', () => {
 });
 
 test('validateBirth: ข้อมูลถูกต้อง', () => {
-  const r = validateBirth({ day: '15', month: '3', yearBE: '2535', time: '08:30', region: 'north' }, TODAY);
+  const r = validateBirth({ day: '15', month: '3', yearBE: '2535', time: '08:30', province: 'chiang-mai' }, TODAY);
   assert.equal(r.ok, true);
   assert.equal(r.value.ce, 1992);
   assert.equal(r.value.minutes, 510);
@@ -89,11 +91,11 @@ test('validateBirth: ข้อความแนะนำเมื่อกร�
   assert.match(validateBirth({ day: 1, month: 1, yearBE: '2400', timeUnknown: true }, TODAY).errors.yearBE, /2443/);
   assert.match(validateBirth({ day: 1, month: 1, yearBE: '25x5', timeUnknown: true }, TODAY).errors.yearBE, /4 หลัก/);
   assert.match(validateBirth({ day: 1, month: 1, yearBE: '2535', time: '25:99' }, TODAY).errors.time, /ไม่ถูกต้อง/);
-  assert.ok(validateBirth({ day: 1, month: 1, yearBE: '2535', timeUnknown: true, region: 'mars' }, TODAY).errors.region);
+  assert.ok(validateBirth({ day: 1, month: 1, yearBE: '2535', timeUnknown: true, province: 'mars' }, TODAY).errors.province);
 });
 
 test('ผลลัพธ์กำหนดค่าได้ (ข้อมูลเดิมได้ผลเดิม) และข้อมูลต่างกันได้ผลต่างกัน', () => {
-  const v = validateBirth({ day: 15, month: 3, yearBE: '2535', time: '08:30', region: 'bkk' }, TODAY).value;
+  const v = validateBirth({ day: 15, month: 3, yearBE: '2535', time: '08:30', province: 'bangkok' }, TODAY).value;
   const a = buildReading(v, TODAY);
   const b = buildReading(v, TODAY);
   assert.deepEqual(a, b);
@@ -142,4 +144,31 @@ test('ผลลัพธ์ไม่มีคำที่ทำให้กล�
 test('hashString คงที่', () => {
   assert.equal(hashString('abc'), hashString('abc'));
   assert.notEqual(hashString('abc'), hashString('abd'));
+});
+
+test('รายชื่อจังหวัดครบ 77 จังหวัด ไม่ซ้ำ และพิกัดอยู่ในประเทศไทย', () => {
+  assert.equal(PROVINCES.length, 77);
+  assert.equal(new Set(PROVINCES.map((p) => p.id)).size, 77);
+  assert.equal(new Set(PROVINCES.map((p) => p.name)).size, 77);
+  assert.equal(new Set(PROVINCES.map((p) => p.code)).size, 77);
+  const regionIds = new Set(PROVINCE_REGIONS.map((r) => r.id));
+  for (const p of PROVINCES) {
+    assert.ok(regionIds.has(p.region), p.name);
+    assert.ok(p.lat > 5.5 && p.lat < 20.5 && p.lon > 97.3 && p.lon < 105.7, `${p.name} พิกัดนอกประเทศไทย`);
+  }
+});
+
+test('เวลาพระอาทิตย์ขึ้นต่างกันตามจังหวัด (ตะวันออกขึ้นก่อนตะวันตก)', () => {
+  const at = (id) => { const p = placeById(id); return sunriseMinutes(p.lat, p.lon, 2026, 3, 15); };
+  const ubon = at('ubon-ratchathani');
+  const maeHongSon = at('mae-hong-son');
+  assert.ok(maeHongSon - ubon >= 20 && maeHongSon - ubon <= 40, `ต่างกัน ${maeHongSon - ubon} นาที`);
+  // เกิดเวลาที่อยู่ระหว่างสองเวลานี้ → อุบลฯ นับวันปฏิทิน แม่ฮ่องสอนนับเป็นวันก่อนหน้า
+  const mid = Math.round((ubon + maeHongSon) / 2);
+  assert.equal(thaiAstroDay({ ce: 2026, month: 3, day: 15, minutes: mid, placeId: 'ubon-ratchathani' }).shifted, false);
+  assert.equal(thaiAstroDay({ ce: 2026, month: 3, day: 15, minutes: mid, placeId: 'mae-hong-son' }).shifted, true);
+});
+
+test('ข้อมูลภูมิภาคที่จำไว้จากเวอร์ชันเก่าแปลงเป็นจังหวัดที่มีอยู่จริง', () => {
+  for (const id of Object.values(LEGACY_REGION_TO_PROVINCE)) assert.ok(placeById(id), id);
 });

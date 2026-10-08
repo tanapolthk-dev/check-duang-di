@@ -4,6 +4,6 @@ export const CONFIG = {
   // เว้นว่างไว้จนกว่าจะ deploy สำเร็จ — ระบบจะไม่สร้าง QR code ไปยัง URL ที่ยังไม่มีอยู่จริง
   // หมายเหตุ: ถ้าเว็บเปิดอยู่บนโดเมน *.github.io ระบบจะใช้ URL ปัจจุบันให้อัตโนมัติ
   publicUrl: '',
-  version: '0.1.0',
+  version: '0.2.0',
   storageKey: 'cdd:v1:remember',
 };

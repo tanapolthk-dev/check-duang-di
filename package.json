@@ -1,6 +1,6 @@
 {
   "name": "check-duang-di",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "เช็คดวงดิ๊ (Check Duang Di) โดย Vanij — เว็บแอปเช็คดวงเพื่อความบันเทิง ประมวลผลบนเบราว์เซอร์",
   "type": "module",

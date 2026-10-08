@@ -1,6 +1,8 @@
 // ปฏิทินและการคำนวณพื้นฐาน (ข้อเท็จจริงเชิงปฏิทิน + ธรรมเนียมที่ระบุไว้ชัดเจน)
 // ไฟล์นี้เป็นฟังก์ชันบริสุทธิ์ ไม่แตะ DOM และไม่ส่งข้อมูลออกนอกเบราว์เซอร์
 
+import { PROVINCES } from './provinces.js';
+
 export const BE_OFFSET = 543;
 export const MIN_YEAR_BE = 2443; // ค.ศ. 1900
 export const THAILAND_UTC_OFFSET = 7; // สมมติฐาน: ใช้เวลามาตรฐานประเทศไทย UTC+7
@@ -10,20 +12,19 @@ export const THAI_MONTHS = [
   'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม',
 ];
 
-// ตำแหน่งอ้างอิงสำหรับคำนวณเวลาพระอาทิตย์ขึ้นโดยประมาณ (ระดับภูมิภาค ไม่ใช่ระดับจังหวัด)
-export const REGIONS = [
-  { id: 'bkk', label: 'กรุงเทพฯ และปริมณฑล', ref: 'กรุงเทพฯ', lat: 13.7563, lon: 100.5018 },
-  { id: 'central', label: 'ภาคกลาง', ref: 'พระนครศรีอยุธยา', lat: 14.3532, lon: 100.5689 },
-  { id: 'north', label: 'ภาคเหนือ', ref: 'เชียงใหม่', lat: 18.7883, lon: 98.9853 },
-  { id: 'northeast', label: 'ภาคตะวันออกเฉียงเหนือ', ref: 'ขอนแก่น', lat: 16.4322, lon: 102.8236 },
-  { id: 'east', label: 'ภาคตะวันออก', ref: 'ชลบุรี', lat: 13.3611, lon: 100.9847 },
-  { id: 'west', label: 'ภาคตะวันตก', ref: 'กาญจนบุรี', lat: 14.0228, lon: 99.5328 },
-  { id: 'south', label: 'ภาคใต้', ref: 'สุราษฎร์ธานี', lat: 9.1382, lon: 99.3215 },
-  { id: 'abroad', label: 'ต่างประเทศ', ref: null, lat: null, lon: null },
-];
+// สถานที่เกิด: 77 จังหวัด (พิกัดตัวเมือง) หรือ "ต่างประเทศ" — ใช้คำนวณเวลาพระอาทิตย์ขึ้นโดยประมาณ
+export const ABROAD = { id: 'abroad', name: 'ต่างประเทศ', lat: null, lon: null };
+export const DEFAULT_PROVINCE_ID = 'bangkok';
 
-export function regionById(id) {
-  return REGIONS.find((r) => r.id === id) || null;
+// ค่าภูมิภาคจากเวอร์ชัน 0.1.0 ที่อาจถูกจำไว้ในเบราว์เซอร์ผู้ใช้ → จังหวัดอ้างอิงเดิมของภูมิภาคนั้น
+export const LEGACY_REGION_TO_PROVINCE = {
+  bkk: 'bangkok', central: 'phra-nakhon-si-ayutthaya', north: 'chiang-mai', northeast: 'khon-kaen',
+  east: 'chonburi', west: 'kanchanaburi', south: 'surat-thani', abroad: 'abroad',
+};
+
+export function placeById(id) {
+  if (id === ABROAD.id) return ABROAD;
+  return PROVINCES.find((p) => p.id === id) || null;
 }
 
 export function isLeapYear(ce) {
@@ -90,7 +91,7 @@ export const WED_NIGHT = { id: 'wedn', name: 'พุธ (กลางคืน)'
  * วันเกิดตามธรรมเนียมโหราศาสตร์ไทย: นับวันใหม่เมื่อพระอาทิตย์ขึ้น
  * และแยกพุธกลางคืน (ตั้งแต่ 18:00 จนก่อนรุ่งเช้า)
  */
-export function thaiAstroDay({ ce, month, day, minutes, regionId }) {
+export function thaiAstroDay({ ce, month, day, minutes, placeId }) {
   const civil = weekday(ce, month, day);
   const notes = [];
   let dow = civil;
@@ -99,16 +100,16 @@ export function thaiAstroDay({ ce, month, day, minutes, regionId }) {
 
   if (minutes == null) {
     notes.push('ไม่ทราบเวลาเกิด จึงใช้วันตามปฏิทินโดยไม่ปรับตามเวลาพระอาทิตย์ขึ้น');
-  } else if (regionId === 'abroad') {
+  } else if (placeId === ABROAD.id) {
     notes.push('เกิดต่างประเทศ ระบบยังไม่ปรับตามเวลาพระอาทิตย์ขึ้นของสถานที่จริง');
   } else {
-    const region = regionById(regionId) || regionById('bkk');
-    sunrise = sunriseMinutes(region.lat, region.lon, ce, month, day);
-    if (!regionId) notes.push('ไม่ได้ระบุภูมิภาค จึงใช้เวลาพระอาทิตย์ขึ้นของกรุงเทพฯ โดยประมาณ');
+    const place = placeById(placeId) || placeById(DEFAULT_PROVINCE_ID);
+    sunrise = sunriseMinutes(place.lat, place.lon, ce, month, day);
+    if (!placeId) notes.push('ไม่ได้ระบุจังหวัดที่เกิด จึงใช้เวลาพระอาทิตย์ขึ้นของกรุงเทพมหานครโดยประมาณ');
     if (sunrise != null && minutes < sunrise) {
       dow = (civil + 6) % 7;
       shifted = true;
-      notes.push(`เกิดก่อนพระอาทิตย์ขึ้น (ประมาณ ${formatMinutes(sunrise)} น.) จึงนับเป็นวันก่อนหน้าตามธรรมเนียมไทย`);
+      notes.push(`เกิดก่อนพระอาทิตย์ขึ้น (ประมาณ ${formatMinutes(sunrise)} น. ที่${place.name}) จึงนับเป็นวันก่อนหน้าตามธรรมเนียมไทย`);
     }
   }
 

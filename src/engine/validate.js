@@ -1,8 +1,8 @@
 // ตรวจสอบข้อมูลจากแบบฟอร์ม คืนค่าข้อผิดพลาดเป็นภาษาไทยที่บอกวิธีแก้
-import { BE_OFFSET, MIN_YEAR_BE, THAI_MONTHS, isValidDate, parseTime, regionById } from './calendar.js';
+import { BE_OFFSET, MIN_YEAR_BE, THAI_MONTHS, isValidDate, parseTime, placeById } from './calendar.js';
 
 /**
- * @param {{day?:string|number, month?:string|number, yearBE?:string|number, time?:string, timeUnknown?:boolean, region?:string}} input
+ * @param {{day?:string|number, month?:string|number, yearBE?:string|number, time?:string, timeUnknown?:boolean, province?:string}} input
  * @param {{ce:number, month:number, day:number}} today วันที่ปัจจุบัน (ส่งเข้ามาเพื่อให้ทดสอบได้)
  */
 export function validateBirth(input, today) {
@@ -48,14 +48,14 @@ export function validateBirth(input, today) {
     }
   }
 
-  const region = input.region ? String(input.region) : '';
-  if (region && !regionById(region)) errors.region = 'เลือกภูมิภาคจากรายการ หรือเว้นว่างไว้';
+  const province = input.province ? String(input.province) : '';
+  if (province && !placeById(province)) errors.province = 'เลือกจังหวัดจากรายการ หรือเลือก "ไม่ระบุ"';
 
   const ok = Object.keys(errors).length === 0;
   return {
     ok,
     errors,
-    value: ok ? { ce: yearBE - BE_OFFSET, yearBE, month, day, minutes, timeUnknown, region } : null,
+    value: ok ? { ce: yearBE - BE_OFFSET, yearBE, month, day, minutes, timeUnknown, province } : null,
   };
 }
 
@@ -69,4 +69,4 @@ function compare(a, b) {
 }
 
 /** ลำดับช่องในฟอร์ม ใช้หาช่องแรกที่ผิดเพื่อย้ายโฟกัส */
-export const FIELD_ORDER = ['day', 'month', 'yearBE', 'time', 'region'];
+export const FIELD_ORDER = ['day', 'month', 'yearBE', 'time', 'province'];

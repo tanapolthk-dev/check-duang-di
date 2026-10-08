@@ -56,7 +56,7 @@ def new_page(browser, base, viewport=None, **kw):
     return ctx, page
 
 
-def fill_valid(page, day='15', month='3', year='2535', time='08:30', region='north', unknown=False):
+def fill_valid(page, day='15', month='3', year='2535', time='08:30', province='chiang-mai', unknown=False):
     page.select_option('#f-day', day)
     page.select_option('#f-month', month)
     page.fill('#f-year', year)
@@ -64,8 +64,8 @@ def fill_valid(page, day='15', month='3', year='2535', time='08:30', region='nor
         page.check('#f-time-unknown')
     else:
         page.fill('#f-time', time)
-    if region is not None:
-        page.select_option('#f-region', region)
+    if province is not None:
+        page.select_option('#f-province', province)
 
 
 def assert_clean(page):
@@ -110,7 +110,7 @@ def t_empty_form(browser, base):
 def t_invalid(browser, base):
     ctx, page = new_page(browser, base)
     page.goto(base + '#/check')
-    fill_valid(page, year='1992', unknown=True, region=None)
+    fill_valid(page, year='1992', unknown=True, province=None)
     page.get_by_role('button', name='ดูผลเช็คดวง').click()
     expect(page.locator('#f-year-err')).to_contain_text('ค.ศ.')
     expect(page.locator('#f-year-err')).to_contain_text('2535')
@@ -142,6 +142,7 @@ def t_valid(browser, base):
     expect(page.locator('table.data tbody tr')).to_have_count(85)
     expect(page.locator('.legend')).to_contain_text('±10')
     expect(page.locator('.result-meta')).to_contain_text('ระบุเวลาเกิด')
+    expect(page.locator('.result-meta')).to_contain_text('จังหวัดเชียงใหม่')
     # มีป้ายบอกที่มาทั้ง 3 แบบ
     for label in ['ปฏิทิน', 'ความเชื่อ', 'จำลอง']:
         assert page.locator('.src', has_text=label).count() > 0
@@ -154,7 +155,7 @@ def t_valid(browser, base):
 def t_skip_time(browser, base):
     ctx, page = new_page(browser, base)
     page.goto(base + '#/check')
-    fill_valid(page, unknown=True, region=None)
+    fill_valid(page, unknown=True, province=None)
     expect(page.locator('#f-time')).to_be_disabled()
     page.get_by_role('button', name='ดูผลเช็คดวง').click()
     expect(page.locator('h1')).to_contain_text('ผลเช็คดวงของคุณ', timeout=5000)
@@ -212,11 +213,11 @@ def t_empty_state(browser, base):
 def t_share(browser, base):
     ctx, page = new_page(browser, base, permissions=['clipboard-read', 'clipboard-write'])
     page.goto(base + '#/check')
-    fill_valid(page, day='23', month='7', year='2531', time='21:45', region='south')
+    fill_valid(page, day='23', month='7', year='2531', time='21:45', province='songkhla')
     page.get_by_role('button', name='ดูผลเช็คดวง').click()
     expect(page.locator('#share-text')).to_be_visible(timeout=5000)
     text = page.locator('#share-text').inner_text()
-    for leak in ['2531', '21:45', 'ภาคใต้', 'กรกฎาคม', '23 ']:
+    for leak in ['2531', '21:45', 'สงขลา', 'กรกฎาคม', '23 ']:
         assert leak not in text, f'ข้อความแชร์มีข้อมูลเกิด: {leak}'
     assert 'cat-' not in page.url and '2531' not in page.url, 'URL มีข้อมูลเกิด'
     page.get_by_role('button', name='คัดลอกข้อความ').click()
@@ -252,7 +253,7 @@ def t_remember(browser, base):
     page.reload()
     expect(page.locator('#f-year')).to_have_value('2535')
     expect(page.locator('#f-time')).to_have_value('08:30')
-    expect(page.locator('#f-region')).to_have_value('north')
+    expect(page.locator('#f-province')).to_have_value('chiang-mai')
     page.goto(base + '#/privacy')
     page.get_by_role('button', name='ลบข้อมูลที่จำไว้').click()
     expect(page.locator('#privacy-status')).to_contain_text('ลบข้อมูลที่จำไว้บนเครื่องนี้แล้ว')
@@ -364,6 +365,23 @@ def t_keyboard(browser, base):
     page.keyboard.press('Enter')
     expect(page.locator('#cat-rhythm')).to_be_focused()
     assert page.url.endswith('#/result')
+    assert_clean(page)
+    ctx.close()
+
+
+@case('18. ฟอร์มมีครบ 77 จังหวัดจัดกลุ่มตามภาค และข้อมูลภูมิภาคที่จำไว้จากเวอร์ชันเก่าแปลงเป็นจังหวัดได้')
+def t_provinces(browser, base):
+    ctx, page = new_page(browser, base)
+    page.goto(base + '#/check')
+    opts = page.locator('#f-province optgroup option')
+    expect(opts).to_have_count(78)  # 77 จังหวัด + ต่างประเทศ
+    expect(page.locator('#f-province optgroup')).to_have_count(7)
+    first = page.locator('#f-province optgroup').first.locator('option').first
+    expect(first).to_have_text('กรุงเทพมหานคร')
+    page.evaluate("localStorage.setItem('cdd:v1:remember', JSON.stringify({day:'1',month:'2',yearBE:'2530',time:'',timeUnknown:true,region:'north'}))")
+    page.reload()
+    expect(page.locator('#f-province')).to_have_value('chiang-mai')
+    page.evaluate('localStorage.clear()')
     assert_clean(page)
     ctx.close()
 

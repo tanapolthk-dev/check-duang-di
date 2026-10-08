@@ -1,5 +1,6 @@
 // มุมมองของแต่ละหน้า (คืนค่าเป็นสตริง HTML; ข้อมูลจากผู้ใช้ผ่าน esc() ทุกครั้ง)
-import { MIN_YEAR_BE, REGIONS, THAI_MONTHS } from '../engine/calendar.js';
+import { ABROAD, MIN_YEAR_BE, THAI_MONTHS } from '../engine/calendar.js';
+import { PROVINCES, PROVINCE_REGIONS } from '../engine/provinces.js';
 import { DISCLAIMER, PHASES } from '../engine/content.js';
 import { GRAPH_MAX_AGE } from '../engine/reading.js';
 import { esc } from './dom.js';
@@ -52,8 +53,8 @@ export function homeView() {
 }
 
 /* ---------- แบบฟอร์ม ---------- */
-const FIELD_LABEL = { day: 'วันที่เกิด', month: 'เดือนเกิด', yearBE: 'ปีเกิด (พ.ศ.)', time: 'เวลาเกิด', region: 'ภูมิภาคที่เกิด' };
-const FIELD_ID = { day: 'f-day', month: 'f-month', yearBE: 'f-year', time: 'f-time', region: 'f-region' };
+const FIELD_LABEL = { day: 'วันที่เกิด', month: 'เดือนเกิด', yearBE: 'ปีเกิด (พ.ศ.)', time: 'เวลาเกิด', province: 'จังหวัดที่เกิด' };
+const FIELD_ID = { day: 'f-day', month: 'f-month', yearBE: 'f-year', time: 'f-time', province: 'f-province' };
 
 export function formView(v = {}, errors = {}, { hasSaved = false } = {}) {
   const errKeys = Object.keys(errors);
@@ -65,8 +66,14 @@ export function formView(v = {}, errors = {}, { hasSaved = false } = {}) {
     .map((d) => `<option value="${d}"${String(v.day) === String(d) ? ' selected' : ''}>${d}</option>`).join('');
   const monthOpts = THAI_MONTHS
     .map((m, i) => `<option value="${i + 1}"${String(v.month) === String(i + 1) ? ' selected' : ''}>${m}</option>`).join('');
-  const regionOpts = REGIONS
-    .map((r) => `<option value="${r.id}"${v.region === r.id ? ' selected' : ''}>${r.label}${r.ref ? ` (อ้างอิง${r.ref})` : ''}</option>`).join('');
+  const sel = (id) => (v.province === id ? ' selected' : '');
+  const collator = new Intl.Collator('th');
+  const provinceOpts = PROVINCE_REGIONS.map((reg) => {
+    const items = PROVINCES.filter((p) => p.region === reg.id)
+      .sort((a, b) => (a.id === 'bangkok' ? -1 : b.id === 'bangkok' ? 1 : collator.compare(a.name, b.name)))
+      .map((p) => `<option value="${p.id}"${sel(p.id)}>${p.name}</option>`).join('');
+    return `<optgroup label="${reg.label}">${items}</optgroup>`;
+  }).join('') + `<optgroup label="อื่น ๆ"><option value="${ABROAD.id}"${sel(ABROAD.id)}>${ABROAD.name}</option></optgroup>`;
 
   const summary = errKeys.length
     ? `<div class="error-summary" id="error-summary" tabindex="-1" role="alert" aria-labelledby="err-title">
@@ -125,13 +132,13 @@ export function formView(v = {}, errors = {}, { hasSaved = false } = {}) {
 
       <fieldset>
         <legend>สถานที่เกิด <span class="opt">(ไม่บังคับ)</span></legend>
-        <p class="hint" id="region-hint">ใช้ประมาณเวลาพระอาทิตย์ขึ้นของภูมิภาคที่เกิด (ระดับภูมิภาค ไม่ใช่ที่อยู่) ถ้าเว้นว่างจะใช้กรุงเทพฯ</p>
+        <p class="hint" id="province-hint">ใช้ประมาณเวลาพระอาทิตย์ขึ้นจากพิกัดตัวเมืองของจังหวัดที่เกิด (ไม่ต้องกรอกที่อยู่) ถ้าไม่ระบุจะใช้กรุงเทพมหานคร</p>
         <div class="field">
-          <label for="f-region">ภูมิภาค</label>
-          <select id="f-region" name="region" ${inv('region')} ${desc('region', 'region-hint')}>
-            <option value="">ไม่ระบุ</option>${regionOpts}
+          <label for="f-province">จังหวัด</label>
+          <select id="f-province" name="province" ${inv('province')} ${desc('province', 'province-hint')}>
+            <option value="">ไม่ระบุ</option>${provinceOpts}
           </select>
-          ${err('region')}
+          ${err('province')}
         </div>
       </fieldset>
 
@@ -206,7 +213,7 @@ export function resultView(r, { publicUrl, canShare }) {
   const b = r.basics;
   const rh = r.rhythm;
   const timeNote = r.input.timeKnown ? 'ระบุเวลาเกิด' : 'ไม่ระบุเวลาเกิด';
-  const placeNote = r.input.regionLabel ? `เกิด${r.input.regionLabel}` : 'ไม่ระบุสถานที่เกิด';
+  const placeNote = r.input.placeLabel ? `เกิด${r.input.placeLabel}` : 'ไม่ระบุสถานที่เกิด';
   const notes = [...b.astroDay.notes, b.zodiac.note].filter(Boolean);
   const nextText = rh.next
     ? `ช่วงลมส่งถัดไปในแบบจำลองเริ่มราว พ.ศ. ${rh.next.startBE} (อายุ ${rh.next.startAge} ปี)`
@@ -317,7 +324,7 @@ export function howView() {
 
     <h2>จากวันเกิดถึงผลลัพธ์</h2>
     <ol>
-      <li>คุณกรอกวันเกิด (จำเป็น) เวลาเกิดและภูมิภาค (ไม่บังคับ)</li>
+      <li>คุณกรอกวันเกิด (จำเป็น) เวลาเกิดและจังหวัดที่เกิด (ไม่บังคับ)</li>
       <li>เบราว์เซอร์ตรวจความถูกต้อง เช่น วันที่มีจริงไหม เป็นปี พ.ศ. หรือไม่ และไม่เป็นวันในอนาคต</li>
       <li>คำนวณข้อมูลจากปฏิทิน: วันในสัปดาห์ เวลาพระอาทิตย์ขึ้นโดยประมาณ ปีนักษัตร และราศีแบบสากล</li>
       <li>สร้างค่าตั้งต้นจากข้อมูลเกิด (hash) แล้วใช้สร้างกราฟจำลองและเลือกข้อความ ข้อมูลชุดเดิมจึงได้ผลเดิมเสมอภายในปีเดียวกัน</li>
@@ -341,7 +348,7 @@ export function howView() {
     <h2>สมมติฐานที่ใช้</h2>
     <ul>
       <li>เวลาเกิดเป็นเวลามาตรฐานประเทศไทย (UTC+7)</li>
-      <li>เวลาพระอาทิตย์ขึ้นคำนวณจากจุดอ้างอิงของภูมิภาค อาจคลาดจากสถานที่จริงหลายนาที</li>
+      <li>เวลาพระอาทิตย์ขึ้นคำนวณจากพิกัดตัวเมืองของจังหวัด อาจคลาดจากสถานที่เกิดจริงไม่กี่นาที</li>
       <li>พุธกลางคืนนับตั้งแต่ 18:00 จนก่อนพระอาทิตย์ขึ้น</li>
       <li>ปีนักษัตรนับตามปีปฏิทิน (บางธรรมเนียมเปลี่ยนเมื่อขึ้นปีใหม่จีนหรือไทย)</li>
       <li>กราฟครอบคลุมอายุ 0–${GRAPH_MAX_AGE} ปี (7 รอบ รอบละ 12 ปี)</li>
@@ -369,7 +376,7 @@ export function privacyView({ hasSaved }) {
       <tbody>
         <tr><td>วัน เดือน ปีเกิด</td><td>คำนวณพื้นดวงและกราฟ</td><td>ในหน่วยความจำของแท็บนี้ หายเมื่อปิดหรือโหลดหน้าใหม่</td></tr>
         <tr><td>เวลาเกิด (ถ้ากรอก)</td><td>ปรับวันเกิดตามเวลาพระอาทิตย์ขึ้น และกำหนดความกว้างช่วงไม่แน่นอน</td><td>เหมือนข้างบน</td></tr>
-        <tr><td>ภูมิภาคที่เกิด (ถ้าเลือก)</td><td>ประมาณเวลาพระอาทิตย์ขึ้น</td><td>เหมือนข้างบน</td></tr>
+        <tr><td>จังหวัดที่เกิด (ถ้าเลือก)</td><td>ประมาณเวลาพระอาทิตย์ขึ้น</td><td>เหมือนข้างบน</td></tr>
         <tr><td>ข้อมูลฟอร์มที่เลือก "จำไว้"</td><td>เติมฟอร์มให้อัตโนมัติครั้งหน้า</td><td>localStorage ของเบราว์เซอร์นี้บนเครื่องนี้ จนกว่าคุณจะลบ</td></tr>
       </tbody>
     </table></div>

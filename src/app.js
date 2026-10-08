@@ -105,7 +105,7 @@ function readForm(form) {
     yearBE: (fd.get('yearBE') || '').toString().trim(),
     time: $('#f-time').disabled ? '' : (fd.get('time') || ''),
     timeUnknown: $('#f-time-unknown').checked,
-    region: fd.get('region') || '',
+    province: fd.get('province') || '',
   };
 }
 

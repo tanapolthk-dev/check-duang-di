@@ -1,6 +1,6 @@
 // สร้างผลลัพธ์เช็คดวงจากข้อมูลที่ผ่านการตรวจแล้ว
 // แหล่งของผลแต่ละส่วนถูกติดป้ายไว้: 'calendar' (ปฏิทิน), 'belief' (ความเชื่อ), 'simulated' (จำลอง)
-import { BE_OFFSET, ageOn, regionById, thaiAstroDay, tropicalSign, zodiacAnimal } from './calendar.js';
+import { BE_OFFSET, ageOn, placeById, thaiAstroDay, tropicalSign, zodiacAnimal } from './calendar.js';
 import { CATEGORIES, DAY_TRAITS, PHASES, READINGS, TIPS } from './content.js';
 import { hashString, mulberry32, pick } from './random.js';
 
@@ -16,7 +16,7 @@ export function phaseOf(score) {
 
 export function seedFor(v) {
   const time = v.minutes == null ? 'na' : String(v.minutes);
-  return hashString(`${v.ce}-${v.month}-${v.day}|${time}|${v.region || 'none'}`);
+  return hashString(`${v.ce}-${v.month}-${v.day}|${time}|${v.province || 'none'}`);
 }
 
 /**
@@ -92,7 +92,7 @@ function levelBucket(level) {
  * @param {{ce:number, month:number, day:number}} today
  */
 export function buildReading(v, today) {
-  const astroDay = thaiAstroDay({ ce: v.ce, month: v.month, day: v.day, minutes: v.minutes, regionId: v.region });
+  const astroDay = thaiAstroDay({ ce: v.ce, month: v.month, day: v.day, minutes: v.minutes, placeId: v.province });
   const zodiac = zodiacAnimal(v.ce, v.month);
   const sign = tropicalSign(v.month, v.day);
   const graph = buildLifeGraph(v);
@@ -119,14 +119,14 @@ export function buildReading(v, today) {
   });
 
   const current = windowAround(graph.points, age);
-  const region = regionById(v.region);
+  const place = placeById(v.province);
 
   return {
     input: {
       // ใช้แสดงผลบนหน้าจอผู้ใช้เท่านั้น ไม่ถูกส่งออกไปที่ใด
       yearBE: v.yearBE, month: v.month, day: v.day,
       timeKnown: v.minutes != null,
-      regionLabel: region ? region.label : null,
+      placeLabel: place ? (place.id === 'abroad' ? 'ต่างประเทศ' : `จังหวัด${place.name}`) : null,
     },
     year: todayBE,
     age,
