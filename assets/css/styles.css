@@ -53,7 +53,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --ink: #E8EBFA;
     --ink-soft: #C3C9EA;
     --paper: #0F1536;
@@ -72,6 +72,25 @@
     --focus: #F6B53A;
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+    --ink: #E8EBFA;
+    --ink-soft: #C3C9EA;
+    --paper: #0F1536;
+    --surface: #18204A;
+    --line: #333D74;
+    --marigold: #F6B53A;
+    --marigold-tint: #3A3218;
+    --jade: #4CC9A6;
+    --jade-tint: #133A3A;
+    --lotus: #F08AAB;
+    --lotus-tint: #3E1B33;
+    --muted: #A9B0D6;
+    --danger: #FF8FA6;
+    --on-marigold: #141B47;
+    --band: rgba(232, 235, 250, 0.14);
+    --focus: #F6B53A;
+    color-scheme: dark;
 }
 
 /* ---------- พื้นฐาน ---------- */
@@ -153,7 +172,8 @@ h1:focus, h1:focus-visible, #error-summary:focus { outline: none; box-shadow: no
 }
 .btn-primary { background: var(--marigold); color: var(--on-marigold); border-color: var(--marigold); }
 .btn-primary:hover { background: #E89A0C; }
-@media (prefers-color-scheme: dark) { .btn-primary:hover { background: #FFC75C; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-primary:hover { background: #FFC75C; } }
+:root[data-theme="dark"] .btn-primary:hover { background: #FFC75C; }
 .btn-secondary { background: transparent; color: var(--ink); border-color: var(--ink); }
 .btn-secondary:hover { background: var(--surface); }
 .btn-quiet { background: transparent; border-color: transparent; color: var(--ink); text-decoration: underline; padding-left: 8px; padding-right: 8px; min-height: 40px; }

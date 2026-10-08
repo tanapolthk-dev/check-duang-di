@@ -265,5 +265,7 @@ window.addEventListener('hashchange', () => {
   render();
 });
 
-if (!window.location.hash) window.history.replaceState(null, '', '#/');
+if (!window.location.hash) {
+  try { window.history.replaceState(null, '', '#/'); } catch { /* บางสภาพแวดล้อมไม่อนุญาต ใช้หน้าแรกเป็นค่าเริ่มต้นอยู่แล้ว */ }
+}
 render({ focus: false });
