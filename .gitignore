@@ -1,0 +1,23 @@
+# ห้าม commit ไฟล์ environment จริงหรือ secret ใด ๆ
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ข้อมูลผู้ใช้หรือไฟล์ export ห้ามอยู่ใน repository
+user-data/
+*.local.json
+
+# ผลลัพธ์จากการ build และการทดสอบ
+dist/
+node_modules/
+tests/e2e/output/
+__pycache__/
+*.pyc
+
+# ระบบปฏิบัติการ / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

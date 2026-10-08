@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- นโยบายความปลอดภัย: โหลดได้เฉพาะไฟล์จากเว็บนี้ และห้ามเชื่อมต่อเครือข่ายใด ๆ จากสคริปต์ (connect-src 'none') -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>เช็คดวงดิ๊ — เช็คดวงจากวันเกิด โดย Vanij</title>
+  <meta name="description" content="เช็คดวงดิ๊ (Check Duang Di) เว็บแอปเช็คดวงจากวันเกิด ดูภาพรวม ความรัก การงาน การเงิน และกราฟจังหวะชีวิตรอบ 12 ปี ฟรี ไม่ต้องสมัคร ข้อมูลประมวลผลบนเครื่องคุณ เนื้อหาเพื่อความบันเทิง">
+  <meta name="theme-color" content="#1F2B6B">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="เช็คดวงดิ๊ — Check Duang Di">
+  <meta property="og:description" content="กรอกวันเกิด แล้วดูจังหวะชีวิตปีนี้ ฟรี ไม่ต้องสมัคร ข้อมูลไม่ออกจากเครื่อง">
+  <meta property="og:image" content="assets/img/og-image.png">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/ibm-plex-sans-thai-thai-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#/" aria-label="เช็คดวงดิ๊ หน้าแรก">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ring-mark"/></svg>
+        <span class="brand-text">
+          <span class="brand-th">เช็คดวงดิ๊</span>
+          <span class="brand-en">Check Duang Di<sup>CDD</sup></span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="เมนูหลัก">
+        <ul>
+          <li><a href="#/check" data-nav="check">เช็คดวง</a></li>
+          <li><a href="#/how" data-nav="how">หลักการทำงาน</a></li>
+          <li><a href="#/privacy" data-nav="privacy">ความเป็นส่วนตัว</a></li>
+          <li><a href="#/open" data-nav="open">เปิดบนมือถือ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <noscript>
+      <p class="notice">เช็คดวงดิ๊ต้องใช้ JavaScript เพื่อประมวลผลบนเครื่องของคุณ กรุณาเปิดใช้ JavaScript แล้วโหลดหน้านี้ใหม่</p>
+    </noscript>
+    <div id="app"></div>
+    <p id="sr-status" class="visually-hidden" role="status" aria-live="polite"></p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p class="footer-brand"><strong>เช็คดวงดิ๊</strong> โดย Vanij</p>
+      <p>เนื้อหาเพื่อความบันเทิงและการสำรวจตนเอง ไม่ใช่คำแนะนำทางการแพทย์ การเงิน หรือกฎหมาย</p>
+      <p class="footer-small">ฟอนต์ IBM Plex Sans Thai โดย IBM (SIL Open Font License 1.1) <span class="version">เวอร์ชันต้นแบบ 0.1.0</span></p>
+    </div>
+  </footer>
+
+  <!-- สัญลักษณ์วงแหวน 12 ช่อง (ใช้ซ้ำในโลโก้) -->
+  <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="ring-mark" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="6.9 2"/>
+      <circle cx="24" cy="7" r="4.2" fill="#F4A81D" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+  </svg>
+</body>
+</html>
